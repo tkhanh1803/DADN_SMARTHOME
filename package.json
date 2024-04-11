@@ -1,0 +1,27 @@
+{
+    "name": "myapp",
+    "type": "module",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "scripts": {
+        "start": "nodemon server.js",
+        "debug": "node inspect server.js"
+    },
+    "author": "Tuan Khanh",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "chalk": "^5.3.0",
+        "dotenv": "^16.4.5",
+        "express": "^4.19.2",
+        "express-validator": "^7.0.1",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.3.1",
+        "nodemon": "^3.1.0",
+        "validator": "^13.11.0"
+    },
+    "devDependencies": {
+        "@faker-js/faker": "^8.4.1"
+    }
+}
