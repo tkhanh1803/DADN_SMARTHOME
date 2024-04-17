@@ -3,36 +3,21 @@ import {Light} from '../models/index.js'
 import Exception from '../exceptions/Exception.js'
 import {print, OutputType} from "../helpers/print.js"
 
-const getAllLights = async({
-    searchString,
-}) => {
-    let filteredLights = await Light.aggregate([
-        {$match: {
-            $or: [
-                {
-                    name: {$regex: `.*${searchString}.*`, $options: 'i'} // ignore case
-                },
-            ]
-        },},
-    ])
-    
-    return filteredLights
-}
-
 const isLightUnique = async (lightName) => {
-    const existingLight = await Light.findOne({name: lightName})
+    const existingLight = await Light.findOne({deviceName: lightName})
     return !existingLight;
 }
 
 const insertLight = async({
-    name,
-    isOpened,
+    deviceName, deviceType, feedKey, color
 }) => {
-    const isUnique = await isLightUnique(name);
+    const isUnique = await isLightUnique(deviceName);
     if (isUnique){
         const light = new Light({
-            name,
-            isOpened,
+            deviceName: deviceName,
+            deviceType: deviceType,
+            feedKey: feedKey,
+            color: color,
         })
         await light.save()
         print('insert light successfully', OutputType.SUCCESS)
@@ -44,23 +29,31 @@ const insertLight = async({
     return light
 }
 
-const toggleLightStatus = async (lightId) => {
-    try {
-        const light = await Light.findById(lightId);
-        if (!light) {
-            throw new Error('Light not found');
-        }
-        light.isOpened = !light.isOpened;
-        await light.save();
-        return light
-    } catch (error) {
-        throw new Error('Error toggling light status: ' + error.message);
+const toggleLightStatus = async (deviceName) => {
+
+    const light = await Light.findOne({deviceName: deviceName});
+    if (!light) {
+        return
     }
+    if (light.color == "#000000") light.color = "#123456"
+    else light.color = "#000000"
+    await light.save();
+    return light
 };
 
+const updateColor = async ({deviceName, color}) => {
+    const light = await Light.findOne({deviceName: deviceName})
+    var regex = /^#[0-9a-f]{6}$/
+    if (!(regex.test(color))) {
+        throw new Exception('Color is not supported')
+    }       
+    light.color = color 
+    await light.save()
+    return light
+}
 
 export default{
-    getAllLights,
+    updateColor,
     insertLight,
     toggleLightStatus,
 }

@@ -2,37 +2,24 @@ import {Fan} from '../models/index.js'
 // import {faker} from '@faker-js/faker'
 import Exception from '../exceptions/Exception.js'
 import {print, OutputType} from "../helpers/print.js"
+import {Device} from '../models/index.js'
 
-const getAllFans = async({
-    searchString,
-}) => {
-    let filteredFans = await Fan.aggregate([
-        {$match: {
-            $or: [
-                {
-                    name: {$regex: `.*${searchString}.*`, $options: 'i'} // ignore case
-                },
-            ]
-        },},
-    ])
-    
-    return filteredFans
-}
 
-const isFanUnique = async (fanName) => {
-    const existingFan = await Fan.findOne({name: fanName})
+const isFanUnique = async (deviceName) => {
+    const existingFan = await Fan.findOne({deviceName: deviceName})
     return !existingFan;
 }
 
 const insertFan = async({
-    name,
-    isOpened,
+    deviceName, deviceType, feedKey, speed
 }) => {
-    const isUnique = await isFanUnique(name);
+    const isUnique = await isFanUnique(deviceName);
     if (isUnique){
         const fan = new Fan({
-            name,
-            isOpened,
+            deviceName: deviceName,
+            deviceType: deviceType,
+            feedKey: feedKey,
+            speed: speed,
         })
         await fan.save()
         print('insert fan successfully', OutputType.SUCCESS)
@@ -44,23 +31,21 @@ const insertFan = async({
     return fan
 }
 
-const toggleFanStatus = async (fanId) => {
-    try {
-        const fan = await Fan.findById(fanId);
-        if (!fan) {
-            throw new Error('Fan not found');
-        }
-        fan.isOpened = !fan.isOpened;
-        await fan.save();
+const updateSpeed = async ({deviceName, speed}) => {
+    const fan = await Fan.findOne({deviceName: deviceName})
+    
+    if (speed < 0 || speed > 100) {
+        throw new Exception('Cannot update speed: Speed is out of range')
+    }       
+    else{
+        fan.speed = speed
+        await fan.save()
         return fan
-    } catch (error) {
-        throw new Error('Error toggling fan status: ' + error.message);
     }
-};
+}
 
 
 export default{
-    getAllFans,
     insertFan,
-    toggleFanStatus,
+    updateSpeed,
 }

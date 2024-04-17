@@ -1,16 +1,21 @@
 import {ObjectId, Schema} from "mongoose"
 import mongoose from "mongoose"
+import Device from "./Device.js"
 
-export default mongoose.model('Fan',
-    new Schema({
-        id: {type: ObjectId},
-        name: {
-            type: String,
-            required: true,
+const FanSchema = new Schema({
+    speed: {
+        type: Number,
+        validator: function(value) {
+            if ((value <= 0 || value > 100)) {
+                return false;
+            }
+            return true;
         },
-        isOpened: {
-            type: Boolean,
-            required: true,
-        },
-    })
-)
+        message: props => `${props.value} Speed value is out of range`,
+        default: 0,
+    }
+});
+
+const Fan = Device.discriminator('Fan', FanSchema);
+
+export default Fan;

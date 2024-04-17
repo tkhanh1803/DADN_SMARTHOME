@@ -1,12 +1,17 @@
 import express from 'express'
 import * as dotenv from 'dotenv'
+import axios from 'axios'
 dotenv.config()
 import connect from './database/database.js'
 
 import {
     doorsRouter,
     fansRouter,
-    lightsRouter
+    lightsRouter,
+    recordsRouter,
+    tempsRouter,
+    humidsRouter,
+    adafruitsRouter,
 } from './routes/index.js'
 
 const app = express()
@@ -17,6 +22,10 @@ const port = process.env.PORT ?? 3000
 app.use('/doors', doorsRouter)  
 app.use('/fans', fansRouter)  
 app.use('/lights', lightsRouter)
+app.use('/records', recordsRouter)
+app.use('/temps', tempsRouter)
+app.use('/humids', humidsRouter)
+app.use('/adafruits', adafruitsRouter)
 
 app.get('/', (req, res) => {
     res.send('response from root router')
